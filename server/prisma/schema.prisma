@@ -1,0 +1,54 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Week {
+  id         Int      @id @default(autoincrement())
+  weekNumber Int      @unique
+  title      String
+  days       Int      @default(7)
+  isOpen     Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  topics     Topic[]
+  note       Note?
+}
+
+model Topic {
+  id        Int      @id @default(autoincrement())
+  weekId    Int
+  week      Week     @relation(fields: [weekId], references: [id], onDelete: Cascade)
+  text      String
+  tag       String
+  isChecked Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model Note {
+  id        Int      @id @default(autoincrement())
+  weekId    Int      @unique
+  week      Week     @relation(fields: [weekId], references: [id], onDelete: Cascade)
+  content   String   @default("")
+  updatedAt DateTime @updatedAt
+}
+
+model StudyLog {
+  id        Int      @id @default(autoincrement())
+  text      String
+  duration  String?
+  createdAt DateTime @default(now())
+}
+
+model PracticeScore {
+  id           Int       @id @default(autoincrement())
+  examName     String
+  score        Float?
+  passingScore Float     @default(72)
+  takenAt      DateTime?
+}
