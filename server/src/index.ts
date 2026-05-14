@@ -524,9 +524,8 @@ app.get('/api/export', verifyToken, async (req, res) => {
   res.json(payload);
 });
 
-if (process.env['VERCEL'] !== '1') {
+if (process.env.NODE_ENV !== 'production') {
   app.listen(PORT, () => console.log(`DVA-C02 Tracker server on http://localhost:${PORT}`));
 }
 
 export default app;
-module.exports = app;
