@@ -151,7 +151,7 @@ export default function PracticeScores() {
   );
 }
 
-function ScoreInput({ exam, target }: { exam: PracticeScore; target: number }) {
+function ScoreInput({ exam }: { exam: PracticeScore; target: number }) {
   const qc = useQueryClient();
   const [draft, setDraft] = useState(exam.score !== null ? String(exam.score) : '');
   const [saved, setSaved] = useState(false);

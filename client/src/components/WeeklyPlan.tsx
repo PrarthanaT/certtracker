@@ -32,12 +32,6 @@ function formatDateRange(weekNumber: number): string {
 }
 
 function ProgressBar({ pct }: { pct: number }) {
-  const color =
-    pct === 100
-      ? 'bg-green-500'
-      : pct > 0
-      ? 'bg-amber-400'
-      : 'bg-gray-200 dark:bg-gray-700';
   return (
     <div className="w-full h-1.5 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden">
       <div

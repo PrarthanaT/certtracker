@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { getWeeks, downloadExport } from './api';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
+import LoginPage from './pages/LoginPage';
 import WeeklyPlan from './components/WeeklyPlan';
 import Domains from './components/Domains';
 import PracticeScores from './components/PracticeScores';
@@ -94,9 +96,65 @@ function ProgressBar({ pct }: { pct: number }) {
   );
 }
 
-// ─── App ─────────────────────────────────────────────────────────────────────
+// ─── App shell (auth gate) ────────────────────────────────────────────────────
 
 export default function App() {
+  return (
+    <AuthProvider>
+      <AppShell />
+    </AuthProvider>
+  );
+}
+
+function AppShell() {
+  const { user, token, loginWithToken } = useAuth();
+
+  // Handle Google OAuth redirect: ?token=<jwt>
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const urlToken = params.get('token');
+    const urlError = params.get('error');
+    if (urlToken) {
+      window.history.replaceState({}, '', window.location.pathname);
+      loginWithToken(urlToken);
+    } else if (urlError) {
+      window.history.replaceState({}, '', window.location.pathname);
+      // Error is surfaced via the login page naturally (user stays unauthenticated)
+      console.warn('OAuth error:', urlError);
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  if (!user || !token) return <LoginPage />;
+  return <AppContent />;
+}
+
+// ─── Main app ────────────────────────────────────────────────────────────────
+
+function LogoutButton() {
+  const { logout, user } = useAuth();
+  const qc = useQueryClient();
+
+  function handleLogout() {
+    qc.clear();
+    logout();
+  }
+
+  return (
+    <button
+      onClick={handleLogout}
+      title={`Signed in as ${user?.email}`}
+      className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+    >
+      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+          d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+      </svg>
+      Logout
+    </button>
+  );
+}
+
+function AppContent() {
   // ── Theme ──────────────────────────────────────────────────────────────────
   const [theme, setTheme] = useState<string>(
     () => localStorage.getItem(DARK_MODE_KEY) || 'dark'
@@ -198,7 +256,7 @@ export default function App() {
             CertTracker
           </span>
 
-          {/* Right: badge + export + toggle */}
+          {/* Right: badge + export + logout + toggle */}
           <div className="flex items-center gap-2">
             <span className="bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-400 text-xs font-semibold px-2.5 py-1 rounded-full tracking-wide">
               AWS DVA-C02
@@ -215,6 +273,8 @@ export default function App() {
               </svg>
               Export
             </button>
+
+            <LogoutButton />
 
             <button
               onClick={toggleTheme}
