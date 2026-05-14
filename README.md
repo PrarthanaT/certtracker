@@ -4,7 +4,8 @@ A full-stack study tracker built to conquer the AWS Certified Developer Associat
 
 ## Screenshot
 
-> _Add a screenshot here once the app is running._
+> <img width="1469" height="956" alt="Screenshot 2026-05-13 at 6 49 28 PM" src="https://github.com/user-attachments/assets/1a841206-32e2-4329-9c7e-e17e43196434" />
+
 
 ## Tech Stack
 
