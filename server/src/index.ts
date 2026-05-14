@@ -16,7 +16,7 @@ const app = express();
 const pool = new pg.Pool({ connectionString: process.env['DATABASE_URL'] });
 const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
-const PORT = process.env.PORT || 3001;
+const PORT = process.env['PORT'] || 3001;
 const JWT_SECRET = process.env.JWT_SECRET ?? 'dev-secret-change-in-production';
 const CLIENT_URL = process.env.CLIENT_URL ?? 'http://localhost:5173';
 
@@ -524,8 +524,9 @@ app.get('/api/export', verifyToken, async (req, res) => {
   res.json(payload);
 });
 
-if (process.env.NODE_ENV !== 'production') {
+if (process.env['NODE_ENV'] !== 'production') {
   app.listen(PORT, () => console.log(`DVA-C02 Tracker server on http://localhost:${PORT}`));
 }
 
 export default app;
+

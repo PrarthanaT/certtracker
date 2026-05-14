@@ -1,6 +1,6 @@
 import { Week, PracticeScore, StudyLogEntry, Topic } from './types';
 
-export const API_BASE = (import.meta.env.VITE_API_URL ?? 'http://localhost:3001') + '/api';
+export const API_BASE = (import.meta.env.VITE_API_URL || '') + '/api';
 
 const TOKEN_KEY = 'auth_token';
 

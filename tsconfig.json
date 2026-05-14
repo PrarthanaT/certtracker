@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "target": "es2017",
+    "module": "commonjs",
+    "lib": ["es2017"],
+    "strict": false,
+    "esModuleInterop": true,
+    "outDir": "dist"
+  },
+  "include": ["api/**/*", "server/src/**/*"]
+}
