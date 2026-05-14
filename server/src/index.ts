@@ -1,5 +1,4 @@
 import 'dotenv/config';
-import path from 'path';
 import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import session from 'express-session';
@@ -7,14 +6,15 @@ import passport from 'passport';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { PrismaLibSql } from '@prisma/adapter-libsql';
+import pg from 'pg';
+import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '@prisma/client';
 
 // ─── Setup ───────────────────────────────────────────────────────────────────
 
 const app = express();
-const dbUrl = process.env['DATABASE_URL'] ?? `file:${path.resolve(__dirname, '../dev.db')}`;
-const adapter = new PrismaLibSql({ url: dbUrl });
+const pool = new pg.Pool({ connectionString: process.env['DATABASE_URL'] });
+const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 const PORT = process.env.PORT || 3001;
 const JWT_SECRET = process.env.JWT_SECRET ?? 'dev-secret-change-in-production';
@@ -76,7 +76,7 @@ if (GOOGLE_ENABLED) {
     {
       clientID: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-      callbackURL: `http://localhost:${PORT}/api/auth/google/callback`,
+      callbackURL: `${process.env['SERVER_URL'] ?? `http://localhost:${PORT}`}/api/auth/google/callback`,
     },
     async (_accessToken, _refreshToken, profile, done) => {
       try {
@@ -524,4 +524,9 @@ app.get('/api/export', verifyToken, async (req, res) => {
   res.json(payload);
 });
 
-app.listen(PORT, () => console.log(`DVA-C02 Tracker server on http://localhost:${PORT}`));
+if (process.env['VERCEL'] !== '1') {
+  app.listen(PORT, () => console.log(`DVA-C02 Tracker server on http://localhost:${PORT}`));
+}
+
+export default app;
+module.exports = app;
